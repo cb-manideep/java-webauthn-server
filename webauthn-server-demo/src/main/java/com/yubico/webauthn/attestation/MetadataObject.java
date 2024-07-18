@@ -36,6 +36,7 @@ import com.google.common.io.Closeables;
 import com.yubico.internal.util.CertificateParser;
 import com.yubico.internal.util.ExceptionUtil;
 import com.yubico.internal.util.JacksonCodecs;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
@@ -43,95 +44,92 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @JsonIgnoreProperties(ignoreUnknown = true)
-@EqualsAndHashCode(
-    of = {"data"},
-    callSuper = false)
+@EqualsAndHashCode(of = {"data"}, callSuper = false)
 public final class MetadataObject {
-  private static final ObjectMapper OBJECT_MAPPER = JacksonCodecs.json();
+    private static final ObjectMapper OBJECT_MAPPER = JacksonCodecs.json();
 
-  private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE =
-      new TypeReference<Map<String, String>>() {};
-  private static final TypeReference<List<String>> LIST_STRING_TYPE =
-      new TypeReference<List<String>>() {};
-  private static final TypeReference<List<JsonNode>> LIST_JSONNODE_TYPE =
-      new TypeReference<List<JsonNode>>() {};
+    private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE = new TypeReference<Map<String, String>>() {
+    };
+    private static final TypeReference<List<String>> LIST_STRING_TYPE = new TypeReference<List<String>>() {
+    };
+    private static final TypeReference<List<JsonNode>> LIST_JSONNODE_TYPE = new TypeReference<List<JsonNode>>() {
+    };
 
-  private final transient JsonNode data;
+    private final transient JsonNode data;
 
-  private final String identifier;
-  private final long version;
-  private final Map<String, String> vendorInfo;
-  private final List<String> trustedCertificates;
-  private final List<JsonNode> devices;
+    private final String identifier;
+    private final long version;
+    private final Map<String, String> vendorInfo;
+    private final List<String> trustedCertificates;
+    private final List<JsonNode> devices;
 
-  @JsonCreator
-  public MetadataObject(JsonNode data) {
-    this.data = data;
-    try {
-      vendorInfo =
-          OBJECT_MAPPER.readValue(data.get("vendorInfo").traverse(), MAP_STRING_STRING_TYPE);
-      trustedCertificates =
-          OBJECT_MAPPER.readValue(data.get("trustedCertificates").traverse(), LIST_STRING_TYPE);
-      devices = OBJECT_MAPPER.readValue(data.get("devices").traverse(), LIST_JSONNODE_TYPE);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Invalid JSON data", e);
+    @JsonCreator
+    public MetadataObject(JsonNode data) {
+        this.data = data;
+        try {
+            vendorInfo = OBJECT_MAPPER.readValue(data.get("vendorInfo").traverse(), MAP_STRING_STRING_TYPE);
+            trustedCertificates = OBJECT_MAPPER.readValue(data.get("trustedCertificates").traverse(), LIST_STRING_TYPE);
+            devices = OBJECT_MAPPER.readValue(data.get("devices").traverse(), LIST_JSONNODE_TYPE);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Invalid JSON data", e);
+        }
+
+        identifier = data.get("identifier").asText();
+        version = data.get("version").asLong();
     }
 
-    identifier = data.get("identifier").asText();
-    version = data.get("version").asLong();
-  }
-
-  public static MetadataObject readDefault() {
-    return readMetadata("/metadata.json");
-  }
-
-  public static MetadataObject readPreview() {
-    return readMetadata("/preview-metadata.json");
-  }
-
-  private static MetadataObject readMetadata(String path) {
-    InputStream is = MetadataObject.class.getResourceAsStream(path);
-    try {
-      return JacksonCodecs.json().readValue(is, MetadataObject.class);
-    } catch (IOException e) {
-      throw ExceptionUtil.wrapAndLog(log, "Failed to read default metadata", e);
-    } finally {
-      Closeables.closeQuietly(is);
+    public static MetadataObject readDefault() {
+        return readMetadata("/metadata.json");
     }
-  }
 
-  public String getIdentifier() {
-    return identifier;
-  }
-
-  public long getVersion() {
-    return version;
-  }
-
-  public Map<String, String> getVendorInfo() {
-    return vendorInfo;
-  }
-
-  public List<String> getTrustedCertificates() {
-    return trustedCertificates;
-  }
-
-  @JsonIgnore
-  public List<X509Certificate> getParsedTrustedCertificates() throws CertificateException {
-    List<X509Certificate> list = new ArrayList<>();
-    for (String trustedCertificate : trustedCertificates) {
-      X509Certificate x509Certificate = CertificateParser.parsePem(trustedCertificate);
-      list.add(x509Certificate);
+    public static MetadataObject readPreview() {
+        return readMetadata("/preview-metadata.json");
     }
-    return list;
-  }
 
-  public List<JsonNode> getDevices() {
-    return MoreObjects.firstNonNull(devices, ImmutableList.of());
-  }
+    private static MetadataObject readMetadata(String path) {
+        InputStream is = MetadataObject.class.getResourceAsStream(path);
+        try {
+            return JacksonCodecs.json().readValue(is, MetadataObject.class);
+        } catch (IOException e) {
+            throw ExceptionUtil.wrapAndLog(log, "Failed to read default metadata", e);
+        } finally {
+            Closeables.closeQuietly(is);
+        }
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public Map<String, String> getVendorInfo() {
+        return vendorInfo;
+    }
+
+    public List<String> getTrustedCertificates() {
+        return trustedCertificates;
+    }
+
+    @JsonIgnore
+    public List<X509Certificate> getParsedTrustedCertificates() throws CertificateException {
+        List<X509Certificate> list = new ArrayList<>();
+        for (String trustedCertificate : trustedCertificates) {
+            X509Certificate x509Certificate = CertificateParser.parsePem(trustedCertificate);
+            list.add(x509Certificate);
+        }
+        return list;
+    }
+
+    public List<JsonNode> getDevices() {
+        return MoreObjects.firstNonNull(devices, ImmutableList.of());
+    }
 }

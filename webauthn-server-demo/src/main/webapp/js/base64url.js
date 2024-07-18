@@ -22,43 +22,43 @@
 // OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(function(root, factory) {
-  if (typeof define === 'function' && define.amd) {
-    define(['base64js'], factory);
-  } else if (typeof module === 'object' && module.exports) {
-    module.exports = factory(require('base64js'));
-  } else {
-    root.base64url = factory(root.base64js);
-  }
-})(this, function(base64js) {
-
-  function ensureUint8Array(arg) {
-    if (arg instanceof ArrayBuffer) {
-      return new Uint8Array(arg);
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(['base64js'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory(require('base64js'));
     } else {
-      return arg;
+        root.base64url = factory(root.base64js);
     }
-  }
+})(this, function (base64js) {
 
-  function base64UrlToMime(code) {
-    return code.replace(/-/g, '+').replace(/_/g, '/') + '===='.substring(0, (4 - (code.length % 4)) % 4);
-  }
+    function ensureUint8Array(arg) {
+        if (arg instanceof ArrayBuffer) {
+            return new Uint8Array(arg);
+        } else {
+            return arg;
+        }
+    }
 
-  function mimeBase64ToUrl(code) {
-    return code.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-  }
+    function base64UrlToMime(code) {
+        return code.replace(/-/g, '+').replace(/_/g, '/') + '===='.substring(0, (4 - (code.length % 4)) % 4);
+    }
 
-  function fromByteArray(bytes) {
-    return mimeBase64ToUrl(base64js.fromByteArray(ensureUint8Array(bytes)));
-  }
+    function mimeBase64ToUrl(code) {
+        return code.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
 
-  function toByteArray(code) {
-    return base64js.toByteArray(base64UrlToMime(code));
-  }
+    function fromByteArray(bytes) {
+        return mimeBase64ToUrl(base64js.fromByteArray(ensureUint8Array(bytes)));
+    }
 
-  return {
-    fromByteArray: fromByteArray,
-    toByteArray: toByteArray,
-  };
+    function toByteArray(code) {
+        return base64js.toByteArray(base64UrlToMime(code));
+    }
+
+    return {
+        fromByteArray: fromByteArray,
+        toByteArray: toByteArray,
+    };
 
 });

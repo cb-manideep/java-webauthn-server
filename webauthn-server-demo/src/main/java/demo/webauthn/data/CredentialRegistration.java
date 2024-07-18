@@ -31,10 +31,12 @@ import com.yubico.webauthn.RegisteredCredential;
 import com.yubico.webauthn.data.AuthenticatorTransport;
 import com.yubico.webauthn.data.ByteArray;
 import com.yubico.webauthn.data.UserIdentity;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
+
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -45,56 +47,57 @@ import lombok.With;
 @With
 public class CredentialRegistration implements CredentialRecord {
 
-  UserIdentity userIdentity;
-  Optional<String> credentialNickname;
-  SortedSet<AuthenticatorTransport> transports;
+    UserIdentity userIdentity;
+    Optional<String> credentialNickname;
+    SortedSet<AuthenticatorTransport> transports;
 
-  @JsonIgnore Instant registrationTime;
-  RegisteredCredential credential;
+    @JsonIgnore
+    Instant registrationTime;
+    RegisteredCredential credential;
 
-  Optional<Object> attestationMetadata;
+    Optional<Object> attestationMetadata;
 
-  @JsonProperty("registrationTime")
-  public String getRegistrationTimestamp() {
-    return registrationTime.toString();
-  }
+    @JsonProperty("registrationTime")
+    public String getRegistrationTimestamp() {
+        return registrationTime.toString();
+    }
 
-  public String getUsername() {
-    return userIdentity.getName();
-  }
+    public String getUsername() {
+        return userIdentity.getName();
+    }
 
-  @Override
-  public @NonNull ByteArray getCredentialId() {
-    return credential.getCredentialId();
-  }
+    @Override
+    public @NonNull ByteArray getCredentialId() {
+        return credential.getCredentialId();
+    }
 
-  @Override
-  public @NonNull ByteArray getUserHandle() {
-    return userIdentity.getId();
-  }
+    @Override
+    public @NonNull ByteArray getUserHandle() {
+        return userIdentity.getId();
+    }
 
-  @Override
-  public @NonNull ByteArray getPublicKeyCose() {
-    return credential.getPublicKeyCose();
-  }
+    @Override
+    public @NonNull ByteArray getPublicKeyCose() {
+        return credential.getPublicKeyCose();
+    }
 
-  @Override
-  public long getSignatureCount() {
-    return credential.getSignatureCount();
-  }
+    @Override
+    public long getSignatureCount() {
+        return credential.getSignatureCount();
+    }
 
-  @Override
-  public Optional<Set<AuthenticatorTransport>> getTransports() {
-    return Optional.ofNullable(transports);
-  }
+    @Override
+    public Optional<Set<AuthenticatorTransport>> getTransports() {
+        return Optional.ofNullable(transports);
+    }
 
-  @Override
-  public Optional<Boolean> isBackupEligible() {
-    return credential.isBackupEligible();
-  }
+    @Override
+    public Optional<Boolean> isBackupEligible() {
+        return credential.isBackupEligible();
+    }
 
-  @Override
-  public Optional<Boolean> isBackedUp() {
-    return credential.isBackedUp();
-  }
+    @Override
+    public Optional<Boolean> isBackedUp() {
+        return credential.isBackedUp();
+    }
 }

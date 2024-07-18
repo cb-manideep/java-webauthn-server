@@ -40,44 +40,42 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-/** Standalone Java application launcher that runs the demo application. */
+/**
+ * Standalone Java application launcher that runs the demo application.
+ */
 public class EmbeddedServer {
 
-  public static void main(String[] args) throws Exception {
-    final int port = Config.getPort();
+    public static void main(String[] args) throws Exception {
+        final int port = Config.getPort();
 
-    App app = new App();
+        App app = new App();
 
-    ResourceConfig config = new ResourceConfig();
-    config.registerClasses(app.getClasses());
-    config.registerInstances(app.getSingletons());
+        ResourceConfig config = new ResourceConfig();
+        config.registerClasses(app.getClasses());
+        config.registerInstances(app.getSingletons());
 
-    SslContextFactory ssl = new SslContextFactory("keystore.jks");
-    ssl.setKeyStorePassword("p@ssw0rd");
+        SslContextFactory ssl = new SslContextFactory("keystore.jks");
+        ssl.setKeyStorePassword("p@ssw0rd");
 
-    Server server = new Server();
-    HttpConfiguration httpConfig = new HttpConfiguration();
-    httpConfig.setSecureScheme("https");
-    httpConfig.setSecurePort(port);
-    HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
-    httpsConfig.addCustomizer(new SecureRequestCustomizer());
+        Server server = new Server();
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSecureScheme("https");
+        httpConfig.setSecurePort(port);
+        HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+        httpsConfig.addCustomizer(new SecureRequestCustomizer());
 
-    ServerConnector connector =
-        new ServerConnector(
-            server,
-            new SslConnectionFactory(ssl, HttpVersion.HTTP_1_1.asString()),
-            new HttpConnectionFactory(httpsConfig));
+        ServerConnector connector = new ServerConnector(server, new SslConnectionFactory(ssl, HttpVersion.HTTP_1_1.asString()), new HttpConnectionFactory(httpsConfig));
 
-    connector.setPort(port);
-    connector.setHost("127.0.0.1");
+        connector.setPort(port);
+        connector.setHost("127.0.0.1");
 
-    ServletHolder servlet = new ServletHolder(new ServletContainer(config));
-    ServletContextHandler context = new ServletContextHandler(server, "/");
-    context.addServlet(DefaultServlet.class, "/");
-    context.setResourceBase("src/main/webapp");
-    context.addServlet(servlet, "/api/*");
+        ServletHolder servlet = new ServletHolder(new ServletContainer(config));
+        ServletContextHandler context = new ServletContextHandler(server, "/");
+        context.addServlet(DefaultServlet.class, "/");
+        context.setResourceBase("src/main/webapp");
+        context.addServlet(servlet, "/api/*");
 
-    server.setConnectors(new Connector[] {connector});
-    server.start();
-  }
+        server.setConnectors(new Connector[]{connector});
+        server.start();
+    }
 }

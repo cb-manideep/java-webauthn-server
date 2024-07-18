@@ -29,6 +29,7 @@ import com.yubico.fido.metadata.UnexpectedLegalHeader;
 import com.yubico.webauthn.data.exception.Base64UrlException;
 import com.yubico.webauthn.extension.appid.InvalidAppIdException;
 import demo.webauthn.WebAuthnRestResource;
+
 import java.io.IOException;
 import java.security.DigestException;
 import java.security.InvalidAlgorithmParameterException;
@@ -38,33 +39,34 @@ import java.security.SignatureException;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
 
 public class App extends Application {
-  @Override
-  public Set<Class<?>> getClasses() {
-    return new HashSet<>(Arrays.asList(CorsFilter.class));
-  }
-
-  @Override
-  public Set<Object> getSingletons() {
-    try {
-      return new HashSet<>(Arrays.asList(new WebAuthnRestResource()));
-    } catch (InvalidAppIdException
-        | CertificateException
-        | CertPathValidatorException
-        | InvalidAlgorithmParameterException
-        | Base64UrlException
-        | DigestException
-        | FidoMetadataDownloaderException
-        | UnexpectedLegalHeader
-        | IOException
-        | NoSuchAlgorithmException
-        | SignatureException
-        | InvalidKeyException e) {
-      throw new RuntimeException(e);
+    @Override
+    public Set<Class<?>> getClasses() {
+        return new HashSet<>(Collections.singletonList(CorsFilter.class));
     }
-  }
+
+    @Override
+    public Set<Object> getSingletons() {
+        try {
+            return new HashSet<>(Collections.singletonList(new WebAuthnRestResource()));
+        } catch (InvalidAppIdException
+                 | CertificateException
+                 | CertPathValidatorException
+                 | InvalidAlgorithmParameterException
+                 | Base64UrlException
+                 | DigestException
+                 | FidoMetadataDownloaderException
+                 | UnexpectedLegalHeader
+                 | IOException
+                 | NoSuchAlgorithmException
+                 | SignatureException
+                 | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
